@@ -37,9 +37,18 @@ class _MyHomePageState extends State<MyHomePage> {
     CardItem(title: 'Colors.purple', description: "This is the last card"),
   ];
 
+  List<CardItem> moreItems = [
+        CardItem(title: 'red', description: "First card"),
+        CardItem(title: 'blue', description: "Second card"),
+        CardItem(title: 'orange', description: "Third card"),
+        CardItem(title: 'indigo', description: "Fourth card"),
+        CardItem(title: 'green', description: "The next card is the last"),
+        CardItem(title: 'purple', description: "This is the last card"),
+      ];
+
   void _reload() {
     setState(() {
-      items = [
+      moreItems = [
         CardItem(title: 'red', description: "First card"),
         CardItem(title: 'blue', description: "Second card"),
         CardItem(title: 'orange', description: "Third card"),
@@ -60,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    SwipeController _swipeController = SwipeController();
+    CardController _cardController = CardController();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -72,14 +81,22 @@ class _MyHomePageState extends State<MyHomePage> {
             width: double.infinity,
             height: 500,
             color: Colors.amber,
-            child: CardsSectionAlignment(
-              swipeController: _swipeController,
+            child: SwipeableCardsSection(
+              cardController: _cardController,
               context: context,
               items: items,
               onLeftSwipe: (item) {
                 print('onDisliked ${item.title}');
               },
               onRightSwipe: _onLiked,
+              onLastCardSwiped: () {
+                print('onLastCardSwiped');
+              },
+              onLastCardLoaded: () {
+                // _cardController.appendItems(moreItems);
+                // _cardController.enableSwipe(false);
+                print('onLastCardLoaded');
+              },
               // cardHeightTopMul: 0.3,
               // cardHeightMiddleMul: 0.25,
               // cardHeightBottomMul: 0.2,
@@ -89,11 +106,11 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               FloatingActionButton(
-                  child: Icon(Icons.chevron_left), onPressed: () => _swipeController.triggerSwipeLeft()),
+                  child: Icon(Icons.chevron_left), onPressed: () => _cardController.triggerSwipeLeft()),
               FloatingActionButton(
-                  child: Icon(Icons.chevron_right), onPressed: () => _swipeController.triggerSwipeRight()),
+                  child: Icon(Icons.chevron_right), onPressed: () => _cardController.triggerSwipeRight()),
               FloatingActionButton(
-                  child: Icon(Icons.replay_outlined), onPressed: _reload)
+                  child: Icon(Icons.replay_outlined), onPressed: () => _cardController.appendItems(moreItems))
             ],
           )
         ],
