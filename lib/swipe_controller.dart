@@ -17,6 +17,14 @@ class CardController {
     return listener.call(Direction.right);
   }
 
+  void triggerSwipeUp() {
+    return listener.call(Direction.up);
+  }
+
+  void triggerSwipeDown() {
+    return listener.call(Direction.down);
+  }
+
   void appendItems(List<CardItem> moreItems) {
     return addItems.call(moreItems);
   }
@@ -29,4 +37,6 @@ class CardController {
 enum Direction {
   left,
   right,
+  up,
+  down,
 }

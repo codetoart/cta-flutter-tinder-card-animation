@@ -21,6 +21,8 @@ class SwipeableCardsSection extends StatefulWidget {
   final List<CardItem> items;
   final Function onLeftSwipe;
   final Function onRightSwipe;
+  final Function onUpSwipe;
+  final Function onDownSwipe;
   final double cardWidthTopMul;
   final double cardWidthMiddleMul;
   final double cardWidthBottomMul;
@@ -37,6 +39,8 @@ class SwipeableCardsSection extends StatefulWidget {
     @required this.items,
     this.onLeftSwipe,
     this.onRightSwipe,
+    this.onUpSwipe,
+    this.onDownSwipe,
     this.cardWidthTopMul = 0.9,
     this.cardWidthMiddleMul = 0.85,
     this.cardWidthBottomMul = 0.8,
@@ -74,19 +78,35 @@ class _CardsSectionState extends State<SwipeableCardsSection>
     if (dir == Direction.left) {
       print('Triggered LEFT -> ${cards[0].item.description}');
       widget.onLeftSwipe != null ? widget.onLeftSwipe(cards[0].item) : () {};
-    } else {
+      frontCardAlign = Alignment(-0.001, 0.0);
+    } else if (dir == Direction.right) {
       print('Triggered RIGHT -> ${cards[0].item.description}');
       widget.onRightSwipe != null ? widget.onRightSwipe(cards[0].item) : () {};
-      frontCardAlign = Alignment(0.001, 0.001);
+      frontCardAlign = Alignment(0.001, 0.0);
+    } else if (dir == Direction.up) {
+      print('Triggered UP -> ${cards[0].item.description}');
+      widget.onRightSwipe != null ? widget.onUpSwipe(cards[0].item) : () {};
+      frontCardAlign = Alignment(0.0, -0.001);
+    } else if (dir == Direction.down) {
+      print('Triggered DOWN -> ${cards[0].item.description}');
+      widget.onRightSwipe != null ? widget.onDownSwipe(cards[0].item) : () {};
+      frontCardAlign = Alignment(0.0, 0.001);
     }
+
     if (cards[0].item == widget.items.last) {
       widget.onLastCardSwiped();
     }
     animateCards();
   }
 
-   void _appendItems(List<CardItem> moreItems) {
+  void _appendItems(List<CardItem> moreItems) {
     widget.items.addAll(moreItems);
+    if (cards[0] == null && cards[1] == null && cards[2] == null) {
+      setState(() {
+        print("RESET  4");
+        resetCards(3);
+      });
+    }
   }
 
   void _enableSwipe(bool isSwipeEnabled) {
@@ -131,7 +151,6 @@ class _CardsSectionState extends State<SwipeableCardsSection>
         if (cards[2] != null) backCard(),
         if (cards[1] != null) middleCard(),
         if (cards[0] != null) frontCard(),
-
         // Prevent swiping if the cards are animating
         ((_controller.status != AnimationStatus.forward) && enableSwipe)
             ? SizedBox.expand(
@@ -147,7 +166,7 @@ class _CardsSectionState extends State<SwipeableCardsSection>
                                 details.delta.dx /
                                 MediaQuery.of(context).size.width,
                         frontCardAlign.y +
-                            40 *
+                            20 *
                                 details.delta.dy /
                                 MediaQuery.of(context).size.height);
 
@@ -156,6 +175,8 @@ class _CardsSectionState extends State<SwipeableCardsSection>
                 },
                 // When releasing the first card
                 onPanEnd: (_) {
+                  print("x = ${frontCardAlign.x}, y = ${frontCardAlign.y}");
+
                   // If the front card was swiped far enough to count as swiped
                   if (frontCardAlign.x > 3.0) {
                     print('Swiped RIGHT -> ${cards[0].item.description}');
@@ -170,6 +191,24 @@ class _CardsSectionState extends State<SwipeableCardsSection>
                     print('Swiped LEFT -> ${cards[0].item.description}');
                     widget.onLeftSwipe != null
                         ? widget.onLeftSwipe(cards[0].item)
+                        : () {};
+                    if (cards[0].item == widget.items.last) {
+                      widget.onLastCardSwiped();
+                    }
+                    animateCards();
+                  } else if (frontCardAlign.y < -3.0) {
+                    print('Swiped UP -> ${cards[0].item.description}');
+                    widget.onUpSwipe != null
+                        ? widget.onUpSwipe(cards[0].item)
+                        : () {};
+                    if (cards[0].item == widget.items.last) {
+                      widget.onLastCardSwiped();
+                    }
+                    animateCards();
+                  } else if (frontCardAlign.y > 3.0) {
+                    print('Swiped DOWN -> ${cards[0].item.description}');
+                    widget.onDownSwipe != null
+                        ? widget.onDownSwipe(cards[0].item)
                         : () {};
                     if (cards[0].item == widget.items.last) {
                       widget.onLastCardSwiped();
@@ -251,9 +290,21 @@ class _CardsSectionState extends State<SwipeableCardsSection>
       frontCardRot = 0.0;
 
       if (cardsCounter < widget.items.length &&
-          (cards[0] == null || cards[1] == null || cards[2] != null)) {
-            changeCardsOrder();
-          }
+          (cards[0] == null || cards[1] == null || cards[2] == null)) {
+        if (cards[0] == null && cards[1] == null && cards[2] != null) {
+          print("RESET  2");
+          resetCards(3);
+        } else if (cards[0] == null && cards[1] != null && cards[2] != null) {
+          print("RESET  3");
+          resetCards(3);
+        } else if (cards[0] != null && cards[1] == null && cards[2] != null) {
+          print("RESET  5");
+          resetCards(3);
+        } else if (cards[0] == null && cards[1] == null && cards[2] == null) {
+          print("RESET  1");
+          resetCards(5);
+        }
+      }
     });
   }
 
@@ -261,6 +312,17 @@ class _CardsSectionState extends State<SwipeableCardsSection>
     _controller.stop();
     _controller.value = 0.0;
     _controller.forward();
+  }
+
+  void resetCards(int diff) {
+    cardsCounter = cardsCounter - diff;
+    cards[0] = ProfileCardAlignment(cardsCounter, widget.items[cardsCounter]);
+    cards[1] =
+        ProfileCardAlignment(cardsCounter + 1, widget.items[cardsCounter + 1]);
+    cards[2] =
+        ProfileCardAlignment(cardsCounter + 2, widget.items[cardsCounter + 2]);
+
+    cardsCounter = cardsCounter + 3;
   }
 }
 
@@ -293,13 +355,26 @@ class CardsAnimation {
 
   static Animation<Alignment> frontCardDisappearAlignmentAnim(
       AnimationController parent, Alignment beginAlign) {
-    return AlignmentTween(
-            begin: beginAlign,
-            end: Alignment(
-                beginAlign.x > 0 ? beginAlign.x + 30.0 : beginAlign.x - 30.0,
-                0.0) // Has swiped to the left or right?
-            )
-        .animate(CurvedAnimation(
-            parent: parent, curve: Interval(0.0, 0.5, curve: Curves.easeIn)));
+    if (beginAlign.x == -0.001 || beginAlign.x == 0.001 || beginAlign.x > 3.0 || beginAlign.x < -3.0) {
+      return AlignmentTween(
+              begin: beginAlign,
+              end: Alignment(
+                  beginAlign.x > 0 ? beginAlign.x + 30.0 : beginAlign.x - 30.0,
+                  0.0) // Has swiped to the left or right?
+              )
+          .animate(CurvedAnimation(
+              parent: parent, curve: Interval(0.0, 0.5, curve: Curves.easeIn)));
+    } else {
+      return AlignmentTween(
+              begin: beginAlign,
+              end: Alignment(
+                  0.0,
+                  beginAlign.y > 0
+                      ? beginAlign.y + 30.0
+                      : beginAlign.y - 30.0) // Has swiped to the left or right?
+              )
+          .animate(CurvedAnimation(
+              parent: parent, curve: Interval(0.0, 0.5, curve: Curves.easeIn)));
+    }
   }
 }

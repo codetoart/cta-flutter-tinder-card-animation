@@ -38,13 +38,13 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
 
   List<CardItem> moreItems = [
-        CardItem(title: 'red', description: "First card"),
-        CardItem(title: 'blue', description: "Second card"),
-        CardItem(title: 'orange', description: "Third card"),
-        CardItem(title: 'indigo', description: "Fourth card"),
-        CardItem(title: 'green', description: "The next card is the last"),
-        CardItem(title: 'purple', description: "This is the last card"),
-      ];
+    CardItem(title: 'red', description: "First card"),
+    CardItem(title: 'blue', description: "Second card"),
+    CardItem(title: 'orange', description: "Third card"),
+    CardItem(title: 'indigo', description: "Fourth card"),
+    CardItem(title: 'green', description: "The next card is the last"),
+    CardItem(title: 'purple', description: "This is the last card"),
+  ];
 
   void _reload() {
     setState(() {
@@ -63,10 +63,6 @@ class _MyHomePageState extends State<MyHomePage> {
     print('onLiked ${item.title}');
   }
 
-  // void _onDisliked(CardItem item) {
-  // print('onDisliked ${item.title}');
-  // }
-
   @override
   Widget build(BuildContext context) {
     CardController _cardController = CardController();
@@ -77,41 +73,50 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            width: double.infinity,
-            height: 500,
-            color: Colors.amber,
-            child: SwipeableCardsSection(
-              cardController: _cardController,
-              context: context,
-              items: items,
-              onLeftSwipe: (item) {
-                print('onDisliked ${item.title}');
-              },
-              onRightSwipe: _onLiked,
-              onLastCardSwiped: () {
-                print('onLastCardSwiped');
-              },
-              onLastCardLoaded: () {
-                // _cardController.appendItems(moreItems);
-                // _cardController.enableSwipe(false);
-                print('onLastCardLoaded');
-              },
-              // cardHeightTopMul: 0.3,
-              // cardHeightMiddleMul: 0.25,
-              // cardHeightBottomMul: 0.2,
-            ),
+          SwipeableCardsSection(
+            cardController: _cardController,
+            context: context,
+            items: items,
+            onLeftSwipe: (item) {
+              print('onDisliked ${item.title}');
+            },
+            onRightSwipe: _onLiked,
+            onUpSwipe: (item) {},
+            onDownSwipe: (item) {},
+            onLastCardSwiped: () {
+              print('onLastCardSwiped');
+            },
+            onLastCardLoaded: () {
+              // _cardController.appendItems(moreItems);
+              // _cardController.enableSwipe(false);
+              print('onLastCardLoaded');
+            },
+            // cardHeightTopMul: 0.3,
+            // cardHeightMiddleMul: 0.25,
+            // cardHeightBottomMul: 0.2,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              FloatingActionButton(
-                  child: Icon(Icons.chevron_left), onPressed: () => _cardController.triggerSwipeLeft()),
-              FloatingActionButton(
-                  child: Icon(Icons.chevron_right), onPressed: () => _cardController.triggerSwipeRight()),
-              FloatingActionButton(
-                  child: Icon(Icons.replay_outlined), onPressed: () => _cardController.appendItems(moreItems))
-            ],
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
+              children: [
+                FloatingActionButton(
+                    child: Icon(Icons.chevron_left),
+                    onPressed: () => _cardController.triggerSwipeLeft()),
+                FloatingActionButton(
+                    child: Icon(Icons.chevron_right),
+                    onPressed: () => _cardController.triggerSwipeRight()),
+                FloatingActionButton(
+                    child: Icon(Icons.arrow_upward),
+                    onPressed: () => _cardController.triggerSwipeUp()),
+                FloatingActionButton(
+                    child: Icon(Icons.arrow_downward),
+                    onPressed: () => _cardController.triggerSwipeDown()),
+                FloatingActionButton(
+                    child: Icon(Icons.replay_outlined),
+                    onPressed: () => _cardController.appendItems(moreItems))
+              ],
+            ),
           )
         ],
       ),
