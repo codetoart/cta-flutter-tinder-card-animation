@@ -1,12 +1,14 @@
-import 'models/card_item.dart';
+import 'package:flutter/material.dart';
 
 typedef TriggerListener = void Function(Direction dir);
-typedef AppendItems = void Function(List<CardItem> moreItems);
+// typedef AppendItems = void Function(List<CardItem> moreItems);
+typedef AppendItem = void Function(Widget item);
 typedef EnableSwipe = void Function(bool dir);
 
 class CardController {
   TriggerListener listener;
-  AppendItems addItems;
+  // AppendItems addItems;
+  AppendItem addItem;
   EnableSwipe enableSwipeListener;
 
   void triggerSwipeLeft() {
@@ -25,8 +27,12 @@ class CardController {
     return listener.call(Direction.down);
   }
 
-  void appendItems(List<CardItem> moreItems) {
-    return addItems.call(moreItems);
+  // void appendItems(List<CardItem> moreItems) {
+  //   return addItems.call(moreItems);
+  // }
+
+  void appendItem(Widget item) {
+    return addItem.call(item);
   }
 
   void enableSwipe(bool isSwipeEnabled) {

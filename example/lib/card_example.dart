@@ -12,16 +12,14 @@ class CardExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 450,
-      width: 320,
-
-      // Warning: hard-coding values like this is a bad practice
+      height: double.infinity,
+      width: double.infinity,
       padding: EdgeInsets.all(38.0),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(15.0),
         border: Border.all(
-          width: 7.0,
+          width: 1.0,
           color: Colors.transparent.withOpacity(0.3),
         ),
       ),

@@ -1,3 +1,4 @@
+import 'package:example/card_example.dart';
 import 'package:flutter/material.dart';
 import 'package:swipeable_card_stack/swipeable_card_stack.dart';
 
@@ -28,40 +29,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<CardItem> items = [
-    CardItem(title: 'Colors.red', description: "First card"),
-    CardItem(title: 'Colors.blue', description: "Second card"),
-    CardItem(title: 'Colors.orange', description: "Third card"),
-    CardItem(title: 'Colors.indigo', description: "Fourth card"),
-    CardItem(title: 'Colors.green', description: "The next card is the last"),
-    CardItem(title: 'Colors.purple', description: "This is the last card"),
+  int counter = 4;
+  List<CardExample> items = [
+    CardExample(color: Colors.red, text: "First card"),
+    CardExample(color: Colors.blue, text: "Second card"),
+    CardExample(color: Colors.orange, text: "Third card"),
+    CardExample(color: Colors.indigo, text: "Fourth card"),
+    CardExample(color: Colors.green, text: "The next card is the last"),
+    CardExample(color: Colors.purple, text: "This is the last card"),
   ];
-
-  List<CardItem> moreItems = [
-    CardItem(title: 'red', description: "First card"),
-    CardItem(title: 'blue', description: "Second card"),
-    CardItem(title: 'orange', description: "Third card"),
-    CardItem(title: 'indigo', description: "Fourth card"),
-    CardItem(title: 'green', description: "The next card is the last"),
-    CardItem(title: 'purple', description: "This is the last card"),
-  ];
-
-  void _reload() {
-    setState(() {
-      moreItems = [
-        CardItem(title: 'red', description: "First card"),
-        CardItem(title: 'blue', description: "Second card"),
-        CardItem(title: 'orange', description: "Third card"),
-        CardItem(title: 'indigo', description: "Fourth card"),
-        CardItem(title: 'green', description: "The next card is the last"),
-        CardItem(title: 'purple', description: "This is the last card"),
-      ];
-    });
-  }
-
-  void _onLiked(CardItem item) {
-    print('onLiked ${item.title}');
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,21 +52,35 @@ class _MyHomePageState extends State<MyHomePage> {
           SwipeableCardsSection(
             cardController: _cardController,
             context: context,
-            items: items,
-            onLeftSwipe: (item) {
-              print('onDisliked ${item.title}');
+            //add the first 3 cards
+            items: [
+              CardExample(color: Colors.red, text: "First card"),
+              CardExample(color: Colors.blue, text: "Second card"),
+              CardExample(color: Colors.orange, text: "Third card"),
+            ],
+            onCardSwiped: (dir) {
+              //Add the next item if available
+              if (counter <= 20) {
+                _cardController.addItem(CardExample(
+                    color: Colors.greenAccent, text: "card $counter"));
+                counter++;
+              }
+
+              if (dir == Direction.left) {
+                print('onDisliked');
+              } else if (dir == Direction.right) {
+                print('onLiked');
+              } else if (dir == Direction.up) {
+                print('onUp');
+              } else if (dir == Direction.down) {
+                print('onDown');
+              }
             },
-            onRightSwipe: _onLiked,
-            onUpSwipe: (item) {},
-            onDownSwipe: (item) {},
             onLastCardSwiped: () {
               print('onLastCardSwiped');
             },
-            onLastCardLoaded: () {
-              // _cardController.appendItems(moreItems);
-              // _cardController.enableSwipe(false);
-              print('onLastCardLoaded');
-            },
+            enableSwipeUp: true,
+            enableSwipeDown: true,
             // cardHeightTopMul: 0.3,
             // cardHeightMiddleMul: 0.25,
             // cardHeightBottomMul: 0.2,
@@ -98,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(
             margin: EdgeInsets.symmetric(vertical: 20.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 FloatingActionButton(
                     child: Icon(Icons.chevron_left),
@@ -112,9 +102,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 FloatingActionButton(
                     child: Icon(Icons.arrow_downward),
                     onPressed: () => _cardController.triggerSwipeDown()),
-                FloatingActionButton(
-                    child: Icon(Icons.replay_outlined),
-                    onPressed: () => _cardController.appendItems(moreItems))
+                // FloatingActionButton(
+                //     child: Icon(Icons.replay_outlined),
+                //     onPressed: () => _cardController.appendItems(moreItems))
               ],
             ),
           )
