@@ -24,8 +24,6 @@ class SwipeableCardsSection extends StatefulWidget {
   final double cardHeightTopMul;
   final double cardHeightMiddleMul;
   final double cardHeightBottomMul;
-  // final Function onLastCardLoaded;
-  final Function onLastCardSwiped;
   final Function appendItemCallback;
   final bool enableSwipeUp;
   final bool enableSwipeDown;
@@ -42,8 +40,6 @@ class SwipeableCardsSection extends StatefulWidget {
     this.cardHeightTopMul = 0.6,
     this.cardHeightMiddleMul = 0.55,
     this.cardHeightBottomMul = 0.5,
-    this.onLastCardSwiped,
-    // this.onLastCardLoaded,
     this.appendItemCallback,
     this.enableSwipeUp = true,
     this.enableSwipeDown = true,
@@ -63,6 +59,7 @@ class SwipeableCardsSection extends StatefulWidget {
 class _CardsSectionState extends State<SwipeableCardsSection>
     with SingleTickerProviderStateMixin {
   int cardsCounter = 0;
+  int index = 0;
   Widget appendCard;
 
   List<Widget> cards = List();
@@ -75,22 +72,19 @@ class _CardsSectionState extends State<SwipeableCardsSection>
 
   void _triggerSwipe(Direction dir) {
     if (dir == Direction.left) {
-      widget.onCardSwiped != null ? widget.onCardSwiped(Direction.left) : () {};
+      widget.onCardSwiped != null ? widget.onCardSwiped(Direction.left, index, cards[0]) : () {};
       frontCardAlign = Alignment(-0.001, 0.0);
     } else if (dir == Direction.right) {
-      widget.onCardSwiped != null ? widget.onCardSwiped(Direction.right) : () {};
+      widget.onCardSwiped != null ? widget.onCardSwiped(Direction.right, index, cards[0]) : () {};
       frontCardAlign = Alignment(0.001, 0.0);
     } else if (dir == Direction.up) {
-      widget.onCardSwiped != null ? widget.onCardSwiped(Direction.up) : () {};
+      widget.onCardSwiped != null ? widget.onCardSwiped(Direction.up, index, cards[0]) : () {};
       frontCardAlign = Alignment(0.0, -0.001);
     } else if (dir == Direction.down) {
-      widget.onCardSwiped != null ? widget.onCardSwiped(Direction.down) : () {};
+      widget.onCardSwiped != null ? widget.onCardSwiped(Direction.down, index, cards[0]) : () {};
       frontCardAlign = Alignment(0.0, 0.001);
     }
 
-    // if (cards[0].item == widget.items.last) {
-    //   widget.onLastCardSwiped();
-    // }
     animateCards();
   }
 
@@ -146,7 +140,6 @@ class _CardsSectionState extends State<SwipeableCardsSection>
                 onPanUpdate: (DragUpdateDetails details) {
                   // Add what the user swiped in the last frame to the alignment of the card
                   setState(() {
-                    // 20 is the "speed" at which moves the card
                     frontCardAlign = Alignment(
                         frontCardAlign.x +
                             20 *
@@ -162,31 +155,26 @@ class _CardsSectionState extends State<SwipeableCardsSection>
                 },
                 // When releasing the first card
                 onPanEnd: (_) {
-                  print("x = ${frontCardAlign.x}, y = ${frontCardAlign.y}");
 
                   // If the front card was swiped far enough to count as swiped
                   if (frontCardAlign.x > 3.0) {
-                    print('Swiped RIGHT');
                     widget.onCardSwiped != null
-                        ? widget.onCardSwiped(Direction.right)
+                        ? widget.onCardSwiped(Direction.right, index, cards[0])
                         : () {};
                     animateCards();
                   } else if (frontCardAlign.x < -3.0) {
-                    print('Swiped LEFT');
                     widget.onCardSwiped != null
-                        ? widget.onCardSwiped(Direction.left)
+                        ? widget.onCardSwiped(Direction.left, index, cards[0])
                         : () {};
                     animateCards();
                   } else if (frontCardAlign.y < -3.0 && widget.enableSwipeUp) {
-                    print('Swiped UP');
                     widget.onCardSwiped != null
-                        ? widget.onCardSwiped(Direction.up)
+                        ? widget.onCardSwiped(Direction.up, index, cards[0])
                         : () {};
                     animateCards();
                   } else if (frontCardAlign.y > 3.0 && widget.enableSwipeDown) {
-                    print('Swiped DOWN');
                     widget.onCardSwiped != null
-                        ? widget.onCardSwiped(Direction.down)
+                        ? widget.onCardSwiped(Direction.down, index, cards[0])
                         : () {};
                     animateCards();
                   } else {
@@ -250,20 +238,11 @@ class _CardsSectionState extends State<SwipeableCardsSection>
       cards[2] = appendCard;
       appendCard = null;
 
-      // cards[2] = (cardsCounter < widget.items.length)
-      //     ? widget.items[cardsCounter]
-      //     : null;
-
-      print('${widget.items.length}   $cardsCounter');
-      // if (widget.items.length == cardsCounter + 1) {
-      //   widget.onLastCardLoaded();
-      // }
-
       cardsCounter++;
+      index++;
 
       frontCardAlign = defaultFrontCardAlign;
       frontCardRot = 0.0;
-
     });
   }
 
@@ -271,15 +250,6 @@ class _CardsSectionState extends State<SwipeableCardsSection>
     _controller.stop();
     _controller.value = 0.0;
     _controller.forward();
-  }
-
-  void resetCards(int diff) {
-    cardsCounter = cardsCounter - diff;
-    cards[0] = widget.items[cardsCounter];
-    cards[1] = widget.items[cardsCounter + 1];
-    cards[2] = widget.items[cardsCounter + 2];
-
-    cardsCounter = cardsCounter + 3;
   }
 }
 
@@ -331,7 +301,7 @@ class CardsAnimation {
                   0.0,
                   beginAlign.y > 0
                       ? beginAlign.y + 30.0
-                      : beginAlign.y - 30.0) // Has swiped to the left or right?
+                      : beginAlign.y - 30.0) // Has swiped to the top or bottom?
               )
           .animate(CurvedAnimation(
               parent: parent, curve: Interval(0.0, 0.5, curve: Curves.easeIn)));
