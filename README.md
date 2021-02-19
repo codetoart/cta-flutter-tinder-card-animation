@@ -38,11 +38,14 @@ Use the `SwipeableCardsSection` widget provided by the package
             context: context,
             //add the first 3 cards (widgets)
             items: [
-              ...
+              CardView(text: "First card"),
+              CardView(text: "Second card"),
+              CardView(text: "Third card"),
             ],
             //Get card swipe event callbacks
             onCardSwiped: (dir, index, widget) {
               //Add the next card using _cardController
+              _cardController.addItem(CardView(text: "Next card"));
               
               //Take action on the swiped widget based on the direction of swipe
             },
