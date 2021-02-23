@@ -58,3 +58,9 @@ Use the `SwipeableCardsSection` widget provided by the package
     }
           
 ```
+
+### Author
+[**CodeToArt Technology**](https://github.com/codetoart)
+
+- Follow us on **Twitter**: [**@codetoart**](https://twitter.com/codetoart)
+- Contact us on **Website**: [**codetoart**](http://www.codetoart.com)
