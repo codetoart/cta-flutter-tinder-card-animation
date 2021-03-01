@@ -1,3 +1,7 @@
+## [0.0.2] - March 1, 2021
+
+- Changed README.md demo gif
+
 ## [0.0.1] - February 19, 2021
 
 - Added `SwipeableCardsSection`
