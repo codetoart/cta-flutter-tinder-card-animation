@@ -1,6 +1,6 @@
 name: swipeable_card_stack
 description: This is Tinder like swipeable cards package. You can add your own widgets to the stack, receive all four events, left, right, up and down. You can define your own business logic for each direction.
-version: 0.0.1
+version: 0.0.2
 author: CodeToArt Technology Pvt. Ltd. <hello@codetoart.com>
 homepage: https://github.com/codetoart/cta-flutter-tinder-card-animation
 
