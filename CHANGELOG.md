@@ -1,3 +1,7 @@
+## [0.0.3] - September 18, 2021
+
+- Null safety
+
 ## [0.0.2] - March 1, 2021
 
 - Changed README.md demo gif
