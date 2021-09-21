@@ -33,7 +33,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     //create a CardController
-    CardController _cardController = CardController();
+    SwipeableCardSectionController _cardController =
+        SwipeableCardSectionController();
 
     return Scaffold(
       appBar: AppBar(

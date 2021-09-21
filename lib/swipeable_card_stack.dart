@@ -15,7 +15,7 @@ const List<Alignment> cardsAlign = [
 List<Size> cardsSize = List.filled(3, Size(1, 1));
 
 class SwipeableCardsSection extends StatefulWidget {
-  final CardController? cardController;
+  final SwipeableCardSectionController? cardController;
 
   //First 3 widgets
   final List<Widget> items;
