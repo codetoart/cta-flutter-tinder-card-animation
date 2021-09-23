@@ -1,38 +1,40 @@
 library swipeable_card_stack;
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:swipeable_card_stack/swipe_controller.dart';
-import 'dart:math';
 
 export './swipe_controller.dart';
 
-List<Alignment> cardsAlign = [
+const List<Alignment> cardsAlign = [
   Alignment(0.0, 1.0),
   Alignment(0.0, 0.8),
   Alignment(0.0, 0.0)
 ];
-List<Size> cardsSize = List(3);
+List<Size> cardsSize = List.filled(3, Size(1, 1));
 
 class SwipeableCardsSection extends StatefulWidget {
-  final CardController cardController;
+  final SwipeableCardSectionController? cardController;
+
   //First 3 widgets
   final List<Widget> items;
-  final Function onCardSwiped;
+  final Function? onCardSwiped;
   final double cardWidthTopMul;
   final double cardWidthMiddleMul;
   final double cardWidthBottomMul;
   final double cardHeightTopMul;
   final double cardHeightMiddleMul;
   final double cardHeightBottomMul;
-  final Function appendItemCallback;
+  final Function? appendItemCallback;
   final bool enableSwipeUp;
   final bool enableSwipeDown;
 
   SwipeableCardsSection({
-    Key key,
+    Key? key,
     this.cardController,
-    @required BuildContext context,
-    @required this.items,
+    required BuildContext context,
+    required this.items,
     this.onCardSwiped,
     this.cardWidthTopMul = 0.9,
     this.cardWidthMiddleMul = 0.85,
@@ -60,28 +62,29 @@ class _CardsSectionState extends State<SwipeableCardsSection>
     with SingleTickerProviderStateMixin {
   int cardsCounter = 0;
   int index = 0;
-  Widget appendCard;
+  Widget? appendCard;
 
-  List<Widget> cards = List();
-  AnimationController _controller;
+  List<Widget?> cards = [];
+  late AnimationController _controller;
   bool enableSwipe = true;
 
   final Alignment defaultFrontCardAlign = Alignment(0.0, 0.0);
-  Alignment frontCardAlign;
+  Alignment frontCardAlign = cardsAlign[2];
   double frontCardRot = 0.0;
 
   void _triggerSwipe(Direction dir) {
+    final swipedCallback = widget.onCardSwiped ?? (_, __) {};
     if (dir == Direction.left) {
-      widget.onCardSwiped != null ? widget.onCardSwiped(Direction.left, index, cards[0]) : () {};
+      swipedCallback(Direction.left, index, cards[0]);
       frontCardAlign = Alignment(-0.001, 0.0);
     } else if (dir == Direction.right) {
-      widget.onCardSwiped != null ? widget.onCardSwiped(Direction.right, index, cards[0]) : () {};
+      swipedCallback(Direction.right, index, cards[0]);
       frontCardAlign = Alignment(0.001, 0.0);
     } else if (dir == Direction.up) {
-      widget.onCardSwiped != null ? widget.onCardSwiped(Direction.up, index, cards[0]) : () {};
+      swipedCallback(Direction.up, index, cards[0]);
       frontCardAlign = Alignment(0.0, -0.001);
     } else if (dir == Direction.down) {
-      widget.onCardSwiped != null ? widget.onCardSwiped(Direction.down, index, cards[0]) : () {};
+      swipedCallback(Direction.down, index, cards[0]);
       frontCardAlign = Alignment(0.0, 0.001);
     }
 
@@ -93,16 +96,21 @@ class _CardsSectionState extends State<SwipeableCardsSection>
   }
 
   void _enableSwipe(bool isSwipeEnabled) {
-    this.enableSwipe = isSwipeEnabled;
+    setState(() {
+      this.enableSwipe = isSwipeEnabled;
+    });
   }
 
   @override
   void initState() {
     super.initState();
 
-    widget.cardController.listener = _triggerSwipe;
-    widget.cardController.addItem = _appendItem;
-    widget.cardController.enableSwipeListener = _enableSwipe;
+    final cardController = widget.cardController;
+    if (cardController != null) {
+      cardController.listener = _triggerSwipe;
+      cardController.addItem = _appendItem;
+      cardController.enableSwipeListener = _enableSwipe;
+    }
 
     // Init cards
     for (cardsCounter = 0; cardsCounter < 3; cardsCounter++) {
@@ -127,67 +135,64 @@ class _CardsSectionState extends State<SwipeableCardsSection>
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        child: Stack(
-      children: <Widget>[
-        if (cards[2] != null) backCard(),
-        if (cards[1] != null) middleCard(),
-        if (cards[0] != null) frontCard(),
-        // Prevent swiping if the cards are animating
-        ((_controller.status != AnimationStatus.forward) && enableSwipe)
-            ? SizedBox.expand(
-                child: GestureDetector(
-                // While dragging the first card
-                onPanUpdate: (DragUpdateDetails details) {
-                  // Add what the user swiped in the last frame to the alignment of the card
-                  setState(() {
-                    frontCardAlign = Alignment(
-                        frontCardAlign.x +
-                            20 *
-                                details.delta.dx /
-                                MediaQuery.of(context).size.width,
-                        frontCardAlign.y +
-                            20 *
-                                details.delta.dy /
-                                MediaQuery.of(context).size.height);
-
-                    frontCardRot = frontCardAlign.x; // * rotation speed;
-                  });
-                },
-                // When releasing the first card
-                onPanEnd: (_) {
-
-                  // If the front card was swiped far enough to count as swiped
-                  if (frontCardAlign.x > 3.0) {
-                    widget.onCardSwiped != null
-                        ? widget.onCardSwiped(Direction.right, index, cards[0])
-                        : () {};
-                    animateCards();
-                  } else if (frontCardAlign.x < -3.0) {
-                    widget.onCardSwiped != null
-                        ? widget.onCardSwiped(Direction.left, index, cards[0])
-                        : () {};
-                    animateCards();
-                  } else if (frontCardAlign.y < -3.0 && widget.enableSwipeUp) {
-                    widget.onCardSwiped != null
-                        ? widget.onCardSwiped(Direction.up, index, cards[0])
-                        : () {};
-                    animateCards();
-                  } else if (frontCardAlign.y > 3.0 && widget.enableSwipeDown) {
-                    widget.onCardSwiped != null
-                        ? widget.onCardSwiped(Direction.down, index, cards[0])
-                        : () {};
-                    animateCards();
-                  } else {
-                    // Return to the initial rotation and alignment
+        child: IgnorePointer(
+      ignoring: !enableSwipe,
+      child: Stack(
+        children: <Widget>[
+          if (cards[2] != null) backCard(),
+          if (cards[1] != null) middleCard(),
+          if (cards[0] != null) frontCard(),
+          // Prevent swiping if the cards are animating
+          ((_controller.status != AnimationStatus.forward))
+              ? SizedBox.expand(
+                  child: GestureDetector(
+                  // While dragging the first card
+                  onPanUpdate: (DragUpdateDetails details) {
+                    // Add what the user swiped in the last frame to the alignment of the card
                     setState(() {
-                      frontCardAlign = defaultFrontCardAlign;
-                      frontCardRot = 0.0;
+                      frontCardAlign = Alignment(
+                          frontCardAlign.x +
+                              20 *
+                                  details.delta.dx /
+                                  MediaQuery.of(context).size.width,
+                          frontCardAlign.y +
+                              20 *
+                                  details.delta.dy /
+                                  MediaQuery.of(context).size.height);
+
+                      frontCardRot = frontCardAlign.x; // * rotation speed;
                     });
-                  }
-                },
-              ))
-            : Container(),
-      ],
+                  },
+                  // When releasing the first card
+                  onPanEnd: (_) {
+                    // If the front card was swiped far enough to count as swiped
+                    final onCardSwiped = widget.onCardSwiped ?? (__) {};
+                    if (frontCardAlign.x > 3.0) {
+                      onCardSwiped(Direction.right, index, cards[0]);
+                      animateCards();
+                    } else if (frontCardAlign.x < -3.0) {
+                      onCardSwiped(Direction.left, index, cards[0]);
+                      animateCards();
+                    } else if (frontCardAlign.y < -3.0 &&
+                        widget.enableSwipeUp) {
+                      onCardSwiped(Direction.up, index, cards[0]);
+                      animateCards();
+                    } else if (frontCardAlign.y > 3.0 &&
+                        widget.enableSwipeDown) {
+                      onCardSwiped(Direction.down, index, cards[0]);
+                      animateCards();
+                    } else {
+                      // Return to the initial rotation and alignment
+                      setState(() {
+                        frontCardAlign = defaultFrontCardAlign;
+                        frontCardRot = 0.0;
+                      });
+                    }
+                  },
+                ))
+              : Container(),
+        ],
+      ),
     ));
   }
 
@@ -261,7 +266,7 @@ class CardsAnimation {
             parent: parent, curve: Interval(0.4, 0.7, curve: Curves.easeIn)));
   }
 
-  static Animation<Size> backCardSizeAnim(AnimationController parent) {
+  static Animation<Size?> backCardSizeAnim(AnimationController parent) {
     return SizeTween(begin: cardsSize[2], end: cardsSize[1]).animate(
         CurvedAnimation(
             parent: parent, curve: Interval(0.4, 0.7, curve: Curves.easeIn)));
@@ -274,7 +279,7 @@ class CardsAnimation {
             parent: parent, curve: Interval(0.2, 0.5, curve: Curves.easeIn)));
   }
 
-  static Animation<Size> middleCardSizeAnim(AnimationController parent) {
+  static Animation<Size?> middleCardSizeAnim(AnimationController parent) {
     return SizeTween(begin: cardsSize[1], end: cardsSize[0]).animate(
         CurvedAnimation(
             parent: parent, curve: Interval(0.2, 0.5, curve: Curves.easeIn)));

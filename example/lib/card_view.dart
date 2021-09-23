@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class CardView extends StatelessWidget {
   const CardView({
-    Key key,
+    Key? key,
     this.text = "Card View",
   }) : super(key: key);
   final String text;
@@ -15,7 +15,9 @@ class CardView extends StatelessWidget {
           SizedBox.expand(
             child: Material(
               borderRadius: BorderRadius.circular(12.0),
-              child: Container(color: Colors.blueAccent,),
+              child: Container(
+                color: Colors.blueAccent,
+              ),
             ),
           ),
           SizedBox.expand(
