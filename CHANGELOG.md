@@ -1,4 +1,4 @@
-## [0.0.3] - September 18, 2021
+## [0.0.3] - September 24, 2021
 
 - Null safety
 
