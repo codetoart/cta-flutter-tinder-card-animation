@@ -167,26 +167,33 @@ class _CardsSectionState extends State<SwipeableCardsSection>
                   onPanEnd: (_) {
                     // If the front card was swiped far enough to count as swiped
                     final onCardSwiped = widget.onCardSwiped ?? (__) {};
+                    bool? shouldAnimate = false;
                     if (frontCardAlign.x > 3.0) {
-                      onCardSwiped(Direction.right, index, cards[0]);
-                      animateCards();
+                      shouldAnimate =
+                          onCardSwiped(Direction.right, index, cards[0]);
                     } else if (frontCardAlign.x < -3.0) {
-                      onCardSwiped(Direction.left, index, cards[0]);
-                      animateCards();
+                      shouldAnimate =
+                          onCardSwiped(Direction.left, index, cards[0]);
                     } else if (frontCardAlign.y < -3.0 &&
                         widget.enableSwipeUp) {
-                      onCardSwiped(Direction.up, index, cards[0]);
-                      animateCards();
+                      shouldAnimate =
+                          onCardSwiped(Direction.up, index, cards[0]);
                     } else if (frontCardAlign.y > 3.0 &&
                         widget.enableSwipeDown) {
-                      onCardSwiped(Direction.down, index, cards[0]);
-                      animateCards();
+                      shouldAnimate =
+                          onCardSwiped(Direction.down, index, cards[0]);
                     } else {
                       // Return to the initial rotation and alignment
                       setState(() {
                         frontCardAlign = defaultFrontCardAlign;
                         frontCardRot = 0.0;
                       });
+                    }
+
+                    shouldAnimate ??= true;
+
+                    if (shouldAnimate) {
+                      animateCards();
                     }
                   },
                 ))
