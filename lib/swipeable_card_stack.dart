@@ -73,22 +73,27 @@ class _CardsSectionState extends State<SwipeableCardsSection>
   double frontCardRot = 0.0;
 
   void _triggerSwipe(Direction dir) {
-    final swipedCallback = widget.onCardSwiped ?? (_, __) {};
+    final swipedCallback = widget.onCardSwiped ?? (_, __, ___) => true;
+    bool? shouldAnimate = false;
     if (dir == Direction.left) {
-      swipedCallback(Direction.left, index, cards[0]);
+      shouldAnimate = swipedCallback(Direction.left, index, cards[0]);
       frontCardAlign = Alignment(-0.001, 0.0);
     } else if (dir == Direction.right) {
-      swipedCallback(Direction.right, index, cards[0]);
+      shouldAnimate = swipedCallback(Direction.right, index, cards[0]);
       frontCardAlign = Alignment(0.001, 0.0);
     } else if (dir == Direction.up) {
-      swipedCallback(Direction.up, index, cards[0]);
+      shouldAnimate = swipedCallback(Direction.up, index, cards[0]);
       frontCardAlign = Alignment(0.0, -0.001);
     } else if (dir == Direction.down) {
-      swipedCallback(Direction.down, index, cards[0]);
+      shouldAnimate = swipedCallback(Direction.down, index, cards[0]);
       frontCardAlign = Alignment(0.0, 0.001);
     }
 
-    animateCards();
+    shouldAnimate ??= true;
+
+    if (shouldAnimate) {
+      animateCards();
+    }
   }
 
   void _appendItem(Widget newCard) {
@@ -166,27 +171,35 @@ class _CardsSectionState extends State<SwipeableCardsSection>
                   // When releasing the first card
                   onPanEnd: (_) {
                     // If the front card was swiped far enough to count as swiped
-                    final onCardSwiped = widget.onCardSwiped ?? (__) {};
+                    final onCardSwiped =
+                        widget.onCardSwiped ?? (_, __, ___) => true;
+                    bool? shouldAnimate = false;
                     if (frontCardAlign.x > 3.0) {
-                      onCardSwiped(Direction.right, index, cards[0]);
-                      animateCards();
+                      shouldAnimate =
+                          onCardSwiped(Direction.right, index, cards[0]);
                     } else if (frontCardAlign.x < -3.0) {
-                      onCardSwiped(Direction.left, index, cards[0]);
-                      animateCards();
+                      shouldAnimate =
+                          onCardSwiped(Direction.left, index, cards[0]);
                     } else if (frontCardAlign.y < -3.0 &&
                         widget.enableSwipeUp) {
-                      onCardSwiped(Direction.up, index, cards[0]);
-                      animateCards();
+                      shouldAnimate =
+                          onCardSwiped(Direction.up, index, cards[0]);
                     } else if (frontCardAlign.y > 3.0 &&
                         widget.enableSwipeDown) {
-                      onCardSwiped(Direction.down, index, cards[0]);
-                      animateCards();
+                      shouldAnimate =
+                          onCardSwiped(Direction.down, index, cards[0]);
                     } else {
                       // Return to the initial rotation and alignment
                       setState(() {
                         frontCardAlign = defaultFrontCardAlign;
                         frontCardRot = 0.0;
                       });
+                    }
+
+                    shouldAnimate ??= true;
+
+                    if (shouldAnimate) {
+                      animateCards();
                     }
                   },
                 ))
