@@ -23,8 +23,8 @@ Use the `SwipeableCardsSection` widget provided by the package
 ```
 @override
   Widget build(BuildContext context) {
-    //create a CardController
-    CardController _cardController = CardController();
+    //create a SwipeableCardSectionController
+    SwipeableCardSectionController _cardController = SwipeableCardSectionController();
 
     return Scaffold(
       appBar: AppBar(
@@ -33,7 +33,7 @@ Use the `SwipeableCardsSection` widget provided by the package
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SwipeableCardsSection(
+          SwipeableCardSectionController(
             cardController: _cardController,
             context: context,
             //add the first 3 cards (widgets)
@@ -48,6 +48,7 @@ Use the `SwipeableCardsSection` widget provided by the package
               _cardController.addItem(CardView(text: "Next card"));
               
               //Take action on the swiped widget based on the direction of swipe
+              //Return false to not animate cards
             },
             //
             enableSwipeUp: true,
