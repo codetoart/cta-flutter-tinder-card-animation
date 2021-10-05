@@ -1,3 +1,7 @@
+## [0.0.4] - September 30, 2021
+
+- Performance improvement
+
 ## [0.0.3] - September 24, 2021
 
 - Null safety
