@@ -33,7 +33,7 @@ Use the `SwipeableCardsSection` widget provided by the package
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SwipeableCardSectionController(
+          SwipeableCardsSection(
             cardController: _cardController,
             context: context,
             //add the first 3 cards (widgets)
