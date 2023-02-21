@@ -107,6 +107,13 @@ class _CardsSectionState extends State<SwipeableCardsSection>
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
 
